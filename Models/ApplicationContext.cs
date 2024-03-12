@@ -10,7 +10,7 @@ public class ApplicationContext : DbContext
 
     public ApplicationContext()
     { 
-       // Database.EnsureDeleted();
+       //Database.EnsureDeleted();
         Database.EnsureCreated();
     }
 

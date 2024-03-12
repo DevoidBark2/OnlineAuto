@@ -5,6 +5,7 @@ using OnlineAuto.Models;
 
 namespace OnlineAuto.Controllers.Auth;
 
+[ApiController]
 public class LoginController: ControllerBase
 {
     [HttpPost("login")]
@@ -18,17 +19,21 @@ public class LoginController: ControllerBase
                 return BadRequest("User not found");
             }
             
-            if (!VerifyPasswordHash(request.password, user.passwordHash, user.passwordSalt))
+            if (!VerifyPasswordHash(request.password, user.passwordHash,user.passwordSalt))
             {
                 return BadRequest("Password or email is incorrect!");
             }
-            
-            if (user.verifiedAt == null)
-            {
-                return BadRequest("Not verified!");
-            }
 
-            return Ok($"Walcome back, {user.firstName}!");
+            var responseUser = new
+            {
+                id = user.Id,
+                firstName = user.firstName,
+                secondName = user.secondName,
+                email = user.email,
+                role = user.userRole
+            };
+            
+            return Ok(responseUser);
         }
     }
     
@@ -36,24 +41,9 @@ public class LoginController: ControllerBase
     {
         using (var hmac = new HMACSHA512(passwordSalt))
         {
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password)
+                .Concat(passwordSalt).ToArray());
             return computedHash.SequenceEqual(passwordHash);
-        }
-    }
-
-    [HttpPost("verify")]
-    public async Task<IActionResult> Verify(string token)
-    {
-        await using (var db = new ApplicationContext())
-        {
-            var user = await db.Users.FirstOrDefaultAsync(u => u.verificationToken == token);
-
-            if (user == null)
-            {
-                return BadRequest("Invalid token");
-            }
-
-            return Ok(user);
         }
     }
 }
