@@ -24,7 +24,13 @@ public class GetUserDetailsController:ControllerBase
                     return Ok(new
                     {
                         success = true,
-                        user = userDetails,
+                        user = new
+                        {
+                            firstName = userDetails.firstName,
+                            secondName = userDetails.secondName,
+                            phone = userDetails.phone,
+                            role = userDetails.userRole
+                        },
                         orders = ordersLogist
                     });
                 }
@@ -36,7 +42,13 @@ public class GetUserDetailsController:ControllerBase
                     {
                         success = true,
                         orders = ordersCarrier,
-                        user = userDetails
+                        user = new
+                        {
+                            firstName = userDetails.firstName,
+                            secondName = userDetails.secondName,
+                            phone = userDetails.phone,
+                            role = userDetails.userRole
+                        },
                     });
                 }
 

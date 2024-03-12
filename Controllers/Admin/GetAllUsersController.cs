@@ -7,13 +7,13 @@ namespace OnlineAuto.Controllers.Admin;
 [ApiController]
 public class GetAllUsersController: ControllerBase
 {
-    [HttpGet("getAllUsers")]
-    public async Task<IActionResult> getALlUsers()
+    [HttpGet("getALlData")]
+    public async Task<IActionResult> getALlData()
     {
         using (var db = new ApplicationContext())
         {
             var selectedUsers = await db.Users
-                .Where(user => user.firstName != null && user.secondName != null && user.email != null) // Проверяем наличие NULL значений
+                .Where(user => user.firstName != null && user.secondName != null && user.email != null)
                 .Select(user => new
                 {
                     id = user.Id,
@@ -24,10 +24,13 @@ public class GetAllUsersController: ControllerBase
                 })
                 .ToListAsync();
 
+            var orders = db.Orders.ToList();
+
             return Ok(new
             {
                 success = true,
-                users = selectedUsers
+                users = selectedUsers,
+                orders = orders
             });
         }
     }
