@@ -13,14 +13,14 @@ public class GetUserDetailsController:ControllerBase
         {
             Console.WriteLine(userId);
             var userDetails = db.Users.FirstOrDefault(user => user.Id == userId);
-            Console.WriteLine("sad" + userDetails);
+            Console.WriteLine("sad" + userDetails.firstName);
             
             if (userDetails != null)
             {
                 if (userDetails.userRole == "logist")
                 {
                    
-                    var ordersLogist = db.Orders.FirstOrDefault(order => order.userId == userDetails.Id);
+                    var ordersLogist = db.Orders.Where(order => order.userId == userDetails.Id).ToList();
                     return Ok(new
                     {
                         success = true,
@@ -37,7 +37,7 @@ public class GetUserDetailsController:ControllerBase
 
                 if (userDetails.userRole == "carrier")
                 {
-                    var ordersCarrier = db.Orders.FirstOrDefault(order => order.customerId == userDetails.Id);
+                    var ordersCarrier = db.Orders.Where(order => order.customerId == userDetails.Id).ToList();
                     return Ok(new
                     {
                         success = true,
