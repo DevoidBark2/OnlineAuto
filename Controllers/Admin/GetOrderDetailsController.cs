@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
+using OnlineAuto.Models.Response;
 
 namespace OnlineAuto.Controllers.Admin;
 
@@ -19,6 +20,21 @@ public class GetOrderDetailsController : ControllerBase
                 
                 if (customerOrderDetails != null)
                 {
+                    var carrierUsersInfo = Array.Empty<UserInfoResponse>();
+                    
+                    var carrierUsers = db.Users.Where(user => user.userRole == "carrier").ToList();
+                    if (carrierUsers.Count > 0)
+                    {
+                       
+                        carrierUsersInfo = carrierUsers.Select(user => new UserInfoResponse
+                        {
+                            Id = user.Id,
+                            firstName = user.firstName,
+                            secondName = user.secondName,
+                            role = user.userRole
+                        }).ToArray();
+                    }
+                    
                     var customerDetails = new
                     {
                         customerId = customerOrderDetails.Id,
@@ -62,7 +78,8 @@ public class GetOrderDetailsController : ControllerBase
                         {
                             success = true,
                             order = order,
-                            customerOrderDetails = customerDetails
+                            customerOrderDetails = customerDetails,
+                            carrierUsers = carrierUsersInfo
                         });
                     }
                 }

@@ -23,7 +23,6 @@ public class GetOrderDataController: ControllerBase
             }
 
             var user = db.Users.FirstOrDefault(user => user.Id == order.userId);
-
             if (user == null)
             {
                 return Ok(new
@@ -32,7 +31,6 @@ public class GetOrderDataController: ControllerBase
                     message = "Пользователь не найден!"
                 });
             }
-
             var userObject = new
             {
                 id = user.Id,
@@ -40,12 +38,35 @@ public class GetOrderDataController: ControllerBase
                 lastName = user.secondName,
                 phoneNumber = user.phone
             };
+           
+            if (order.customerId != 0)
+            {
+                var carrierUser = db.Users.FirstOrDefault(userCarrier => userCarrier.Id == order.customerId);
+                
+                var carrierObject = new
+                {
+                    id = carrierUser?.Id,
+                    firstName = carrierUser?.firstName,
+                    secondName = carrierUser?.secondName,
+                    phone = carrierUser?.phone
+                };
+                return Ok(new
+                {
+                    success = true,
+                    order = order,
+                    user = userObject,
+                    carrierUser = carrierObject
+                });
+            }
             return Ok(new
             {
                 success = true,
                 order = order,
-                user = userObject
+                user = userObject,
+                carrierUser = new {},
             });
+            
+            
         }
     }
 }
