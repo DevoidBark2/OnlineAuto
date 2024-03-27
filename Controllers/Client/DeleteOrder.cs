@@ -1,31 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
 using OnlineAuto.Models.Request;
+using OnlineAuto.Services.Client;
 
 namespace OnlineAuto.Controllers;
 
 [ApiController]
 public class DeleteOrder:ControllerBase
 {
+    private ClientService _clientService;
+    public DeleteOrder()
+    {
+        _clientService = new ClientService();
+    }
     [HttpPost("deleteOrder")]
     public async Task<IActionResult> deleteUser(DeleteOrderRequest request)
     {
-        using (var db = new ApplicationContext())
+        var orderDelete = _clientService.DeleteOrder(request);
+        
+        return Ok(new
         {
-            var order = db.Orders.FirstOrDefault(order => order.Id == request.orderId && order.userId == request.userId);
-
-            if (order == null)
-            {
-                return NotFound("Order not found");
-            }
-            db.Orders.Remove(order);
-            await db.SaveChangesAsync();
-
-            return Ok(new
-            {
-                success = true,
-                message = "Order deleted successfully"
-            });
-        }
+            success = orderDelete,
+            message = orderDelete ? "Order deleted successfully" : "Order delete error!"
+        });
+        
     }
 }

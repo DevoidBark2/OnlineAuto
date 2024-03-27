@@ -14,5 +14,4 @@ public class Order
     public int userId { get; set; }
 
     public int? customerId { get; set; } = 0;
-    public User User { get; set; }
 }

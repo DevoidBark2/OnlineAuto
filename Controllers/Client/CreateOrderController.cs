@@ -1,36 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
 using OnlineAuto.Models.Request;
+using OnlineAuto.Services.Client;
 
 namespace OnlineAuto.Controllers;
 
 [ApiController]
 public class CreateOrderController: ControllerBase
 {
-    [HttpPost("createOrder")]
-    public async Task<IActionResult> saveUserData(OrderRequest request)
+    private ClientService _clientService;
+
+    public CreateOrderController()
     {
-        using (var db = new ApplicationContext())
+        _clientService = new ClientService();
+    }
+    [HttpPost("createOrder")]
+    public async Task<IActionResult> CreateOrder(OrderRequest request)
+    {
+        var order = _clientService.CreateOrder(request);
+        return Ok(new
         {
-            var order = new Order
-            {
-                From = request.pointOne,
-                To = request.pointTwo,
-                Price = request.price,
-                Date = request.date,
-                Comment = request.comment,
-                userId = request.userId,
-            };
-
-            db.Orders.Add(order);
-            db.SaveChanges();
-
-            return Ok(new
-            {
-                success = true,
-                message = "Заказ успешно создан!",
-                order = order
-            });
-        }
+            success = true,
+            message = "Заказ успешно создан!",
+            order = order
+        });
     }
 }

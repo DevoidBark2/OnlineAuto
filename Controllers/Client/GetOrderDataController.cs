@@ -1,72 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
+using OnlineAuto.Services.Client;
 
 namespace OnlineAuto.Controllers;
 
 [ApiController]
 public class GetOrderDataController: ControllerBase
 {
-    [HttpGet("getOrderData")]
-    public async Task<IActionResult> GetOrderData([FromQuery] int orderId)
+    private ClientService _clientService;
+
+    public GetOrderDataController()
     {
-        using (var db = new ApplicationContext())
-        {
-            var order = db.Orders.FirstOrDefault(order => order.Id == orderId);
+        _clientService = new ClientService();
+    }
+    [HttpGet("getOrderData")]
+    public async Task<IResult> GetOrderData([FromQuery] int orderId)
+    {
 
-            if (order == null)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = "Ошибка при получении данных заказа!"
-                });
-            }
+        var orderData = _clientService.GetOrderData(orderId);
 
-            var user = db.Users.FirstOrDefault(user => user.Id == order.userId);
-            if (user == null)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = "Пользователь не найден!"
-                });
-            }
-            var userObject = new
-            {
-                id = user.Id,
-                firstName = user.firstName,
-                lastName = user.secondName,
-                phoneNumber = user.phone
-            };
-           
-            if (order.customerId != 0)
-            {
-                var carrierUser = db.Users.FirstOrDefault(userCarrier => userCarrier.Id == order.customerId);
-                
-                var carrierObject = new
-                {
-                    id = carrierUser?.Id,
-                    firstName = carrierUser?.firstName,
-                    secondName = carrierUser?.secondName,
-                    phone = carrierUser?.phone
-                };
-                return Ok(new
-                {
-                    success = true,
-                    order = order,
-                    user = userObject,
-                    carrierUser = carrierObject
-                });
-            }
-            return Ok(new
-            {
-                success = true,
-                order = order,
-                user = userObject,
-                carrierUser = new {},
-            });
-            
-            
-        }
+        return Results.Ok(orderData);
     }
 }

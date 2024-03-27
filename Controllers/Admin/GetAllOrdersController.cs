@@ -1,36 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineAuto.Models;
+using OnlineAuto.Services.Admin;
 
 namespace OnlineAuto.Controllers.Admin;
 
 [ApiController]
 public class GetAllOrdersController:ControllerBase
 {
+    private AdminService _adminService;
+
+    public GetAllOrdersController()
+    {
+        _adminService = new AdminService();
+    }
     [HttpGet("getOrders")]
     public async Task<IActionResult> getOrders()
     {
-        using (var db = new ApplicationContext())
+
+        var response = _adminService.GetAllOrders();
+
+        return Ok(new
         {
-            var orderDetails = await db.Orders.Include(order => order.User).ToListAsync();
-
-            var selectedUsers = await db.Users.Where(user => user.userRole == "logist" || user.userRole == "carrier")
-                .Select(user => new
-                {
-                    id = user.Id,
-                    firstName = user.firstName,
-                    secondName = user.secondName,
-                    email = user.email,
-                    role = user.userRole
-                })
-                .ToListAsync();
-
-            return Ok(new
-            {
-                success = true,
-                orders = orderDetails,
-                users = selectedUsers
-            });
-        }
+            success = true,
+            orders = response.orderData,
+            users = response.userData
+        });
     }
 }

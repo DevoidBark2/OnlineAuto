@@ -1,34 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
 using OnlineAuto.Models.Request;
+using OnlineAuto.Services.Admin;
 
 namespace OnlineAuto.Controllers.Admin;
 [ApiController]
 public class AddNewOrderController:ControllerBase
 {
+    private AdminService _adminService;
+
+    public AddNewOrderController()
+    {
+        _adminService = new AdminService();
+    }
     [HttpPost("addNewOrderAdmin")]
     public async Task<IActionResult> AddNewOrder(AddNewOrderRequestAdmin orderRequest)
     {
-        using (var db = new ApplicationContext())
+        var order = _adminService.AddNewOrder(orderRequest);
+
+        return Ok(new
         {
-            var order = new Order
-            {
-                From = orderRequest.pointOne,
-                To = orderRequest.pointTwo,
-                Price = orderRequest.price,
-                Date = orderRequest.date,
-                Comment = orderRequest.comment,
-                userId = orderRequest.customerId,
-                customerId = orderRequest.carrierId
-            };
-
-            db.Orders.Add(order);
-            db.SaveChanges();
-
-            return Ok(new
-            {
-                success = true
-            });
-        }
+            success = order
+        });
     }
 }

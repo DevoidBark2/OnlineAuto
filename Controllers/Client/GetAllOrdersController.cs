@@ -1,24 +1,27 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
+using OnlineAuto.Services.Client;
 
 namespace OnlineAuto.Controllers;
 
 [ApiController]
 public class GetAllOrdersController:ControllerBase
 {
+    private ClientService _clientService;
+
+    public GetAllOrdersController()
+    {
+        _clientService = new ClientService();
+    }
     [HttpGet("getAllOrders")]
     public async Task<IActionResult> getAllOrders()
     {
-        using (var db = new ApplicationContext())
+        var orders = _clientService.GetAllOrder();
+        return Ok(new
         {
-            var orders = db.Orders.ToList();
-
-            return Ok(new
-            {
-                success = true,
-                orders = orders
-            });
-        }
+            success = true,
+            orders = orders
+        });
     }
 }

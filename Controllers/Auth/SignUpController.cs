@@ -1,58 +1,30 @@
-using System.Security.Cryptography;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
+using OnlineAuto.Services.Auth;
 
 namespace OnlineAuto.Controllers.Auth;
 
 [ApiController]
 public class SignUpController: ControllerBase
 {
-    [HttpPost("signup")]
-    public async Task<IActionResult> SignUp(UserSignUpRequest request)
+
+    private AuthService _authService;
+    public SignUpController()
     {
-        await using (var db = new ApplicationContext())
-        {
-            if (db.Users.Any(u => u.email == request.email))
-            {
-                return BadRequest("User already exists");
-            }
-            
-            CreatePasswordHash(request.password, out byte[] passwordHash, out byte[] passwordSalt);
-            var user = new User
-            {
-                firstName = request.firstName,
-                secondName = request.secondName,
-                email = request.email,
-                phone = request.phone,
-                passwordHash = passwordHash,
-                passwordSalt = passwordSalt,
-                userRole = request.userRole
-            };
-
-            db.Users.Add(user);
-            db.SaveChanges();
-
-            var responseUser = new
-            {
-                id = user.Id,
-                firstName = user.firstName,
-                phone = user.phone,
-                secondName = user.secondName,
-                email = user.email,
-                role = user.userRole
-            };
-            
-            return Ok(responseUser);
-        }
+        _authService = new AuthService();
     }
-
-    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    [HttpPost("signup")]
+    public async Task<IResult> SignUp(UserSignUpRequest request)
     {
-        using (var hmac = new HMACSHA512())
+        try
         {
-            passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password)
-                .Concat(passwordSalt).ToArray());
+            var user = _authService.Register(request);
+            return Results.Ok(user);
+        }
+        catch (BadHttpRequestException ex)
+        {
+            return Results.BadRequest(ex.Message);
         }
     }
 }

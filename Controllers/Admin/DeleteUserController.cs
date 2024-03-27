@@ -1,43 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
 using OnlineAuto.Models.Request;
+using OnlineAuto.Services.Admin;
 
 namespace OnlineAuto.Controllers.Admin;
 
 [ApiController]
 public class DeleteUserController:ControllerBase
 {
+    private AdminService _adminService;
+
+    public DeleteUserController()
+    {
+        _adminService = new AdminService();
+    }
     [HttpPost("deleteUser")]
     public async Task<IActionResult> DeleteUser(DeleteUserRequest request)
     {
-        using (var db = new ApplicationContext())
+        var response = _adminService.DeleteUser(request);
+
+        return Ok(new
         {
-            var user = db.Users.FirstOrDefault(user => user.Id == request.userId);
-
-            if (user != null)
-            {
-                if (user.userRole == "logist")
-                {
-                    var userOrders = db.Orders.Where(order => order.userId == request.userId);
-                    db.Orders.RemoveRange(userOrders);
-                }
-
-                if (user.userRole == "carrier")
-                {
-                    var userOrders = db.Orders.Where(order => order.userId == request.userId);
-                    db.Orders.RemoveRange(userOrders);
-                }
-                
-                db.Users.Remove(user);
-                await db.SaveChangesAsync();
-
-                return Ok(new { success = true });
-            }
-
-            return Ok(new
-            {
-                success = false
-            });
-        }
+            success = response
+        });
     }
 }

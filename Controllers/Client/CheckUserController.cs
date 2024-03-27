@@ -1,30 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineAuto.Models;
 using OnlineAuto.Models.Request;
+using OnlineAuto.Services.Client;
 
 namespace OnlineAuto.Controllers;
 
 [ApiController]
 public class CheckUserController:ControllerBase
 {
+    private ClientService _clientService;
+
+    public CheckUserController()
+    {
+        _clientService = new ClientService();
+    }
     [HttpPost("checkUser")]
     public async Task<IActionResult> CheckUser(CheckUserRequest checkUserRequest)
     {
-        using (var db = new ApplicationContext())
-        {
-            var user = db.Users.FirstOrDefault(user => user.Id == checkUserRequest.userId);
+        var checkUser = _clientService.CheckUser(checkUserRequest);
 
-            if (user != null)
-            {
-                return Ok(new
-                {
-                    success = true
-                });
-            }
-            return Ok(new
-            {
-                success = false
-            });
-        }
+        return Ok(new
+        {
+            success = checkUser
+        });
     }
 }
