@@ -285,4 +285,25 @@ public class ClientService
             };
         }
     }
+
+    public List<Order> SearchOrder(string search)
+    {
+        using (var db = new ApplicationContext())
+        {
+            var allOrders = db.Orders.ToList();
+
+            if (search.Length == 0)
+            {
+                return allOrders;
+            }
+
+            var searchOrders = allOrders.Where(o =>
+                (o.From.Contains(search)) ||
+                (o.To.Contains(search)) ||
+                (o.Price.ToString().Contains(search))
+            ).ToList();
+
+            return searchOrders;
+        }
+    }
 }
